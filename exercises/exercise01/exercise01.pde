@@ -1,6 +1,5 @@
 final int CIRCLE_SPEED = 7;
-final color NO_CLICK_FILL_COLOR = color(250, 100, 100);
-final color CLICK_FILL_COLOR = color(100, 100, 250);
+//CHANGED: Color managed in keyPressed().
 final color BACKGROUND_COLOR = color(250, 150, 150);
 final color STROKE_COLOR = color(250, 150, 150);
 final int CIRCLE_SIZE = 50;
@@ -21,13 +20,13 @@ void setup() {
   circleVX = CIRCLE_SPEED;
   circleVY = CIRCLE_SPEED;
   stroke(STROKE_COLOR);
-  fill(NO_CLICK_FILL_COLOR);
   background(BACKGROUND_COLOR);
+  fill(250, 100, 100);
   
   deviateX = 0;
   deviateY = 0;
   dist = 100;
-  
+ 
   //The ellipse is first placed in the center of the screen with a stroke color the same as the background
 }
 
@@ -77,5 +76,23 @@ void draw() {
 }
 
 void mousePressed() {
-  background(BACKGROUND_COLOR); //Clean background when mouse clicked. Otherwise, drawings are accumulated indefinitely.
+  background(BACKGROUND_COLOR); //CHANGED: Reset sketch when mouse clicked. Otherwise, drawings are accumulated indefinitely.
+  circleX = width/2;
+  circleY = height/2;
+}
+
+void keyPressed(){ // CHANGED: Player can change the color of the ball with arrow keys.
+if (key == CODED){
+    switch (keyCode){
+      case LEFT:
+        fill(250, 100, 100); // "red".
+        break;
+      case DOWN:
+        fill(115, 165, 50); //green.
+        break;
+      case RIGHT:
+        fill(100, 100, 250); // blue.
+        break;
+    }
+  }
 }
