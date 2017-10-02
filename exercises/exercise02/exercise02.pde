@@ -1,5 +1,5 @@
 /*We make all the variables for the program, including static data, paddle data and 
-ball data.*/
+ ball data.*/
 
 color backgroundColor = color(0);
 
@@ -15,21 +15,31 @@ int paddleSpeed = 10;
 int paddleWidth = 128;
 int paddleHeight = 16;
 color paddleColor = color(255);
-int paddleMode; // changes the paddle color.
+int paddleMode; //CHANGED: changes the paddle color.
 
 int ballX;
 int ballY;
 int ballVX;
 int ballVY;
+int recordVX; //CHANGED: Record VX and VY for when the ball stays on place.
+int recordVY;
 int ballSpeed = 5;
-int ballSize = 16;
+int ballW; //CHANGED: Differentiate width and height.
+int ballH;
 color ballColor = color(255);
+boolean bouncing; //CHANGED: Handles ball bouncing on the sides.
+boolean retracting; //CHANGED: Handles if ball is retracting (or "squishing").
+int ballSide = 0; /*CHANGED: Variable to check which side the ball is on (1 = left, 
+ 2 = top, 3 = right.*/
+final int PRESSURE = 2; //CHANGED: The pressure on the ball hitting the walls.
+final int BALL_SIZE = 16; //CHANGED: constant to remember the ball size.
+final int BALL_MAX_PRESSURE = 10;
 
 /* The setup calls two other setups to initialize the paddle's & ball's "physical" 
-properties and movement. */
+ properties and movement. */
 void setup() {
   size(640, 480);
-  
+
   setupPaddle();
   setupBall();
 }
@@ -44,8 +54,17 @@ void setupPaddle() {
 void setupBall() {
   ballX = width/2;
   ballY = height/2;
+  ballW = BALL_SIZE;
+  ballH = BALL_SIZE;
+  
   ballVX = ballSpeed;
   ballVY = ballSpeed;
+  recordVX = 0;
+  recordVY = 0;
+  
+  bouncing = false;
+  retracting = false;
+  
 }
 
 void draw() {
@@ -63,28 +82,28 @@ void draw() {
 // 999 static are added to the screen randomly every frame.
 void drawStatic() { 
   for (int i = 0; i < numStatic; i++) {
-   float x = random(0,width);
-   float y = random(0,height);
-   float staticSize = random(staticSizeMin,staticSizeMax);
-   fill(staticColor);
-   rect(x,y,staticSize,staticSize);
+    float x = random(0, width);
+    float y = random(0, height);
+    float staticSize = random(staticSizeMin, staticSizeMax);
+    fill(staticColor);
+    rect(x, y, staticSize, staticSize);
   }
 }
 
 /* Paddle is moved and contained within the screen's limit. Only changes when user 
-press arrows. */
+ press arrows. */
 
 void updatePaddle() { 
   paddleX += paddleVX;  
-  paddleX = constrain(paddleX,0+paddleWidth/2,width-paddleWidth/2);
+  paddleX = constrain(paddleX, 0+paddleWidth/2, width-paddleWidth/2);
 }
 
 /* The ball moves autonomously and calls other functions that check the ball's 
-collisions. */
+ collisions. */
 void updateBall() { 
   ballX += ballVX;
   ballY += ballVY;
-  
+
   handleBallHitPaddle();
   handleBallHitWall();
   handleBallOffBottom();
@@ -93,70 +112,69 @@ void updateBall() {
 void drawPaddle() {
   rectMode(CENTER);
   noStroke();
-  
+
   /* CHANGED: We change the paddle color through the paddleMode to go from green to
-  yellow to red everytime it collisions with the ball, showing visually the ball's 
-  growing speed. */
-  for (int i = 0; i <= 6; i++){
-    switch (paddleMode){
-      case 0:
-        fill(paddleColor);
-        break;
-      case 1:
-        fill(140, 220, 125);
-        break;
-      case 2:
-        fill(170, 220, 125);
-        break;
-      case 3:
-        fill(210, 230, 110);
-        break;
-      case 4:
-        fill(230, 180, 110);
-        break;
-      case 5:
-        fill(195, 80, 60);
-        break;
-      default:
+   yellow to red everytime it collisions with the ball, showing visually the ball's 
+   growing speed. */
+  for (int i = 0; i <= 6; i++) {
+    switch (paddleMode) {
+    case 0:
+      fill(paddleColor);
+      break;
+    case 1:
+      fill(140, 220, 125);
+      break;
+    case 2:
+      fill(170, 220, 125);
+      break;
+    case 3:
+      fill(210, 230, 110);
+      break;
+    case 4:
+      fill(230, 180, 110);
+      break;
+    case 5:
+      fill(195, 80, 60);
+      break;
+    default:
       fill(215, 55, 40);
-        break;
+      break;
     }
   }
-  
+
   rect(paddleX, paddleY, paddleWidth, paddleHeight);
 }
 
 void drawBall() {
-  rectMode(CENTER);
   noStroke();
   fill(ballColor);
-  rect(ballX, ballY, ballSize, ballSize);
+  ellipse(ballX, ballY, ballW, ballH);
 }
 
 void handleBallHitPaddle() {
   if (ballOverlapsPaddle()) {
-    ballY = paddleY - paddleHeight/2 - ballSize/2;
+    ballY = paddleY - paddleHeight/2 - ballH/2;
     ballVY = -ballVY;
-    
+
     //CHANGED: Make ball go faster every time it hits the paddle.
     if (ballVX < 0)
       ballVX -=1;
     else
       ballVX +=1;
-      
+
     if (ballVY < 0)
       ballVY -=1;
     else
       ballVY +=1;
-      
+
     paddleMode++;
   }
 }
 
 /* Return true when  ball and paddle overlap. If "if" doesn't happen, return false 
-by default. */
+ by default. */
 boolean ballOverlapsPaddle() {
-  if (ballX - ballSize/2 > paddleX - paddleWidth/2 && ballX + ballSize/2 < paddleX + paddleWidth/2) {
+  if (ballX - ballW/2 > paddleX - paddleWidth/2 && ballX + ballW/2 < paddleX + paddleWidth/2) {
     if (ballY > paddleY - paddleHeight/2) {
       return true;
     }
@@ -171,33 +189,116 @@ void handleBallOffBottom() {
     ballY = height/2;
     ballVX = ballSpeed; // CHANGED: Reset ball's speed.
     ballVY = ballSpeed;
-    
+
     paddleMode = 0;
   }
 }
 
 boolean ballOffBottom() {
-  return (ballY - ballSize/2 > height);
+  return (ballY - ballH/2 > height);
 }
 
 //Keep the ball within the sides and top of the screen.
 void handleBallHitWall() {
-  if (ballX - ballSize/2 < 0) {
-    ballX = 0 + ballSize/2;
-    ballVX = -ballVX;
-  } else if (ballX + ballSize/2 > width) {
-    ballX = width - ballSize/2;
-    ballVX = -ballVX;
+  if (ballX - ballW/2 < 0 && !bouncing) {
+    println("Ball hit left wall.");
+    bouncing = true;
+    retracting = true;
+    ballSide = 1;
+
+    ballX = 0 + ballW/2;
+    recordVX = -ballVX;
+    recordVY = ballVY;
+    ballVX = 0;
+    ballVY = 0;
+  } else if (ballX + ballW/2 > width && !bouncing) {
+    println("Ball hit right wall.");
+    bouncing = true;
+    retracting = true;
+    ballSide = 3;
+
+    ballX = width - ballW/2;
+    recordVX = -ballVX;
+    recordVY = ballVY;
+    ballVX = 0;
+    ballVY = 0;
   }
-  
-  if (ballY - ballSize/2 < 0) {
-    ballY = 0 + ballSize/2;
-    ballVY = -ballVY;
+
+  if (ballY - ballH/2 < 0 && !bouncing) {
+    println("Ball hit top wall.");
+    bouncing = true;
+    retracting = true;
+    ballSide = 2;
+
+    ballY = 0 + ballH/2;
+    recordVY = -ballVY;
+    recordVX = ballVX;
+    ballVY = 0;
+    ballVX = 0;
+  }
+
+  ballBounces();
+}
+
+//CHANGED: Adds elasticity to the ball when it hits the walls.
+void ballBounces() {
+  if (bouncing) {
+    switch (ballSide) {
+    case 1: //CHANGED: Ball its left wall.
+      if (ballW > BALL_SIZE - BALL_MAX_PRESSURE && retracting) {
+        ballW -= PRESSURE;
+        ballX -= PRESSURE/2;
+        
+        if (ballW == BALL_SIZE - BALL_MAX_PRESSURE)
+          retracting = false;
+      } else {
+        ballW += PRESSURE;
+        ballX += PRESSURE/2;
+      }
+      break;
+    case 2: //CHANGED: Ball hits top wall.
+      if (ballH > BALL_SIZE - BALL_MAX_PRESSURE && retracting) {
+        ballH -= PRESSURE;
+        ballY -= PRESSURE/2;
+        
+        if (ballH == BALL_SIZE - BALL_MAX_PRESSURE)
+          retracting = false;
+      } else {
+        ballH += PRESSURE;
+        ballY += PRESSURE/2;
+      }
+      break;
+    case 3: //CHANGED: Ball hits right wall.
+      if (ballW > BALL_SIZE - BALL_MAX_PRESSURE && retracting) {
+        println("Shake it break it bake it bounce!");
+        ballW -= PRESSURE;
+        ballX += PRESSURE/2;
+        
+        if (ballW == BALL_SIZE - BALL_MAX_PRESSURE)
+          retracting = false;
+      } else {
+        ballW += PRESSURE;
+        ballX -= PRESSURE/2;
+      }
+      break;
+    }
+
+    if (ballSide != 2 && ballW == BALL_SIZE) {
+      bouncing = false;
+      ballVX = recordVX;
+      ballVY = recordVY;
+      ballSide = 0;
+    } else if (ballSide == 2 && ballH == BALL_SIZE){
+      bouncing = false;
+      ballVX = recordVX;
+      ballVY = recordVY;
+      ballSide = 0;
+    }
   }
 }
 
 /* Move the paddle when side arrow keys pressed through the VX, which is then 
-put back to 0 when the key is released. */
+ put back to 0 when the key is released. */
 void keyPressed() {
   if (keyCode == LEFT) {
     paddleVX = -paddleSpeed;
