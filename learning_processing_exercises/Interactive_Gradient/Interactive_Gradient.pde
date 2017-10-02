@@ -1,3 +1,5 @@
+//Chapter 6: Loops
+
 int x = 0;
 int y = 0;
 float c = 0;
@@ -12,10 +14,12 @@ void setup() {
 void draw() {
   noStroke();
 
-  println("Boucle ouvre et ferme");
+  
 
   x = 0;
   while (x < width) {
+    println("Boucle ouvre et ferme");
+    
     c = abs(mouseX - x);
     c = constrain(c, 0, 255);
     

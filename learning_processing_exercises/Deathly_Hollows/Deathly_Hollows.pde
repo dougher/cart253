@@ -1,3 +1,4 @@
+//Chapter 1: Pixels
 
 void setup(){
   println("Deathly hollows.");

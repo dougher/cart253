@@ -1,0 +1,195 @@
+int DISTANCE = 90;
+
+class Ball {
+  IntClock myClock;
+  
+  int diam;
+  color c;
+
+  float x;
+  float y;
+  float distX;
+  float distY;
+  float newX;
+  float newY;
+
+  float speedX;
+  float speedY;
+  float easing;
+
+  boolean active;
+  boolean safe;
+  boolean moving;
+
+  int ticks;
+  int action;
+
+  Ball(int w, int h) {
+    myClock = new IntClock(Factor.Normal);
+    
+    diam = 30;
+    c = color(255, 255, 255);
+
+    x = w/2;
+    y = h/2;
+    distX = 100;
+    distY = 100;
+    newX = x;
+    newY = y;
+
+    speedX = 0;
+    speedY = 0;
+    easing = 0.1;
+
+    active = false;
+    safe = true;
+    moving = false;
+
+    ticks = 0;
+    action = 0;
+  }
+
+  void AI() {
+
+    if (safe) {
+      if (active)
+        Instinct();
+      else if (!active && moving)
+        Brake();
+      else{
+        myClock.Turn();
+        if (myClock.Cycle()){
+          active = true;
+          action = 1;
+        }
+      }
+    } else
+      Flight();
+
+    if (abs(mouseX- x) < DISTANCE && abs(mouseY - y) < DISTANCE) { 
+      safe = false;
+    }
+    println("active: " + active);
+    println("safe: " + safe);
+
+    Regulate();
+    Display();
+  }
+
+  void Instinct() {
+    switch(action) {
+    case 1:
+      Stroll();
+      break;
+    case 2:
+      //Eat();
+      break;
+    case 3: 
+      //Sleep();
+      break;
+    }
+
+    if (abs(mouseX- x) < DISTANCE && abs(mouseY - y) < DISTANCE) { 
+      safe = false;
+    }
+  }
+
+  void Stroll() {
+    if (!moving) {
+      newX = random(x-DISTANCE, x+DISTANCE);
+      newY = random(x-DISTANCE, y+DISTANCE);
+
+      moving = true;
+    }
+
+    if (safe) {
+      distX = abs(newX - x);
+      distY = abs(newY - y);
+      println(newX + "(newX) - " + x + " (x) = " + distX);
+      println(newY + "(newY) - " + y + " (y) = " + distY);
+
+      speedX = distX * easing;
+      speedY = distY * easing;
+      println(speedX + " < speedX | speedY > " + speedY);
+
+      if (abs(speedX) < easing || abs(speedY) < easing)
+        active = false;
+
+      if (newX - x > 0) 
+        speedX = -speedX;
+
+      if (newY - y > 0) 
+        speedY = -speedY;
+
+      Move();
+    }
+  }
+
+  void Flight () {
+    distX = abs(mouseX - x);
+    distY = abs(mouseY - y);
+
+    println("Que hora es?!");
+
+    speedX = (DISTANCE - distX) * easing;
+    speedY = (DISTANCE - distY) * easing;
+
+    if (mouseX - x < 0) 
+      speedX = -speedX;
+
+    if (mouseY - y < 0) 
+      speedY = -speedY;
+
+    Move();
+
+    if (abs(distX) >= DISTANCE || abs(distY) >= DISTANCE) {
+      safe = true;
+      active = false;
+      ticks = 0;
+    }
+  }
+
+  void Move() {
+    moving = true;
+    x -= speedX;
+    y -= speedY;
+  }
+
+  void Brake() {
+    x = x - speedX;
+    y = y - speedY;
+
+    if (speedX > 0)
+      speedX -= easing;
+    else
+      speedX += easing;
+
+    if (speedY > 0)
+      speedY -= easing;
+    else
+      speedY += easing;
+
+    //println("Bananas!");
+    if (abs(speedX) < easing || abs(speedY) < easing) {
+      moving = false;
+      speedX = 0;
+      speedY = 0;
+
+      myClock.Reset();
+      println("Uncle dolan pls.");
+    }
+  }
+
+  void Regulate() {
+    x = constrain(x, (diam/2), width - (diam/2));
+    y = constrain(y, (diam/2), height - (diam/2));
+
+    if (ticks > CLOCK)
+      ticks = CLOCK;
+  }
+
+  void Display() {
+    fill(c);
+    ellipse(x, y, diam, diam);
+  }
+}
