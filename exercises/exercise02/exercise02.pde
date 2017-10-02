@@ -106,6 +106,17 @@ void handleBallHitPaddle() {
   if (ballOverlapsPaddle()) {
     ballY = paddleY - paddleHeight/2 - ballSize/2;
     ballVY = -ballVY;
+    
+    //CHANGED: Make ball go faster every time it hits the paddle.
+    if (ballVX < 0)
+      ballVX -=1;
+    else
+      ballVX +=1;
+      
+    if (ballVY < 0)
+      ballVY -=1;
+    else
+      ballVY +=1;
   }
 }
 
@@ -125,6 +136,8 @@ void handleBallOffBottom() {
   if (ballOffBottom()) {
     ballX = width/2;
     ballY = height/2;
+    ballVX = ballSpeed; // CHANGED: Reset ball's speed.
+    ballVY = ballSpeed;
   }
 }
 
