@@ -15,6 +15,7 @@ int paddleSpeed = 10;
 int paddleWidth = 128;
 int paddleHeight = 16;
 color paddleColor = color(255);
+int paddleMode; // changes the paddle color.
 
 int ballX;
 int ballY;
@@ -37,6 +38,7 @@ void setupPaddle() {
   paddleX = width/2;
   paddleY = height - paddleHeight;
   paddleVX = 0;
+  paddleMode = 0;
 }
 
 void setupBall() {
@@ -91,7 +93,36 @@ void updateBall() {
 void drawPaddle() {
   rectMode(CENTER);
   noStroke();
-  fill(paddleColor);
+  
+  /* CHANGED: We change the paddle color through the paddleMode to go from green to
+  yellow to red everytime it collisions with the ball, showing visually the ball's 
+  growing speed. */
+  for (int i = 0; i <= 6; i++){
+    switch (paddleMode){
+      case 0:
+        fill(paddleColor);
+        break;
+      case 1:
+        fill(140, 220, 125);
+        break;
+      case 2:
+        fill(170, 220, 125);
+        break;
+      case 3:
+        fill(210, 230, 110);
+        break;
+      case 4:
+        fill(230, 180, 110);
+        break;
+      case 5:
+        fill(195, 80, 60);
+        break;
+      default:
+      fill(215, 55, 40);
+        break;
+    }
+  }
+  
   rect(paddleX, paddleY, paddleWidth, paddleHeight);
 }
 
@@ -117,6 +148,8 @@ void handleBallHitPaddle() {
       ballVY -=1;
     else
       ballVY +=1;
+      
+    paddleMode++;
   }
 }
 
@@ -138,6 +171,8 @@ void handleBallOffBottom() {
     ballY = height/2;
     ballVX = ballSpeed; // CHANGED: Reset ball's speed.
     ballVY = ballSpeed;
+    
+    paddleMode = 0;
   }
 }
 
