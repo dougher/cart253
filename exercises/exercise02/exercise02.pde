@@ -31,7 +31,7 @@ boolean bouncing; //CHANGED: Handles ball bouncing on the sides.
 boolean retracting; //CHANGED: Handles if ball is retracting (or "squishing").
 int ballSide = 0; /*CHANGED: Variable to check which side the ball is on (1 = left, 
  2 = top, 3 = right.*/
-final int PRESSURE = 2; //CHANGED: The pressure on the ball hitting the walls.
+final int PRESSURE = 3; //CHANGED: The pressure on the ball hitting the walls.
 final int BALL_SIZE = 16; //CHANGED: constant to remember the ball size.
 final int BALL_MAX_PRESSURE = 10;
 
@@ -148,7 +148,8 @@ void drawPaddle() {
 void drawBall() {
   noStroke();
   fill(ballColor);
-  ellipse(ballX, ballY, ballW, ballH);
+  //CHANGED: Ball bounces looks better with an ellipse.
+  ellipse(ballX, ballY, ballW, ballH); 
 }
 
 void handleBallHitPaddle() {
@@ -240,7 +241,15 @@ void handleBallHitWall() {
   ballBounces();
 }
 
-//CHANGED: Adds elasticity to the ball when it hits the walls.
+/*CHANGED: Adds elasticity to the ball when it hits the walls.
+The bouncing and retracting variable are turned to true once the ball touches 
+whichever side (at which point it stays in position). The ball's width or height
+gets smaller until it reaches the ball's max pressure point, at which point
+the retracting variable becomes false (so the programs knows when to switch
+from substraction to addition of the size) and the ball regains its normal size.
+Once this happens, bouncing becomes false and we put back the recorded VX and VY
+in the proper variables to resume the ball's movements.
+*/
 void ballBounces() {
   if (bouncing) {
     switch (ballSide) {
@@ -249,7 +258,7 @@ void ballBounces() {
         ballW -= PRESSURE;
         ballX -= PRESSURE/2;
         
-        if (ballW == BALL_SIZE - BALL_MAX_PRESSURE)
+        if (ballW <= BALL_SIZE - BALL_MAX_PRESSURE)
           retracting = false;
       } else {
         ballW += PRESSURE;
@@ -261,7 +270,7 @@ void ballBounces() {
         ballH -= PRESSURE;
         ballY -= PRESSURE/2;
         
-        if (ballH == BALL_SIZE - BALL_MAX_PRESSURE)
+        if (ballH <= BALL_SIZE - BALL_MAX_PRESSURE)
           retracting = false;
       } else {
         ballH += PRESSURE;
@@ -274,7 +283,7 @@ void ballBounces() {
         ballW -= PRESSURE;
         ballX += PRESSURE/2;
         
-        if (ballW == BALL_SIZE - BALL_MAX_PRESSURE)
+        if (ballW <= BALL_SIZE - BALL_MAX_PRESSURE)
           retracting = false;
       } else {
         ballW += PRESSURE;
@@ -282,17 +291,19 @@ void ballBounces() {
       }
       break;
     }
-
-    if (ballSide != 2 && ballW == BALL_SIZE) {
+    
+    if (ballSide != 2 && ballW >= BALL_SIZE) {
       bouncing = false;
       ballVX = recordVX;
       ballVY = recordVY;
       ballSide = 0;
-    } else if (ballSide == 2 && ballH == BALL_SIZE){
+      ballW = BALL_SIZE;
+    } else if (ballSide == 2 && ballH >= BALL_SIZE){
       bouncing = false;
       ballVX = recordVX;
       ballVY = recordVY;
       ballSide = 0;
+      ballH = BALL_SIZE;
     }
   }
 }
