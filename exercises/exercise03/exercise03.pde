@@ -21,3 +21,8 @@ void draw() {
   bouncer.draw();
   bouncer2.draw();
 }
+
+void mouseClicked(){
+  bouncer.handleMouseClick();
+  bouncer2.handleMouseClick();
+}

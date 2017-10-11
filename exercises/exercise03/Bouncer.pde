@@ -28,7 +28,7 @@ class Bouncer {
     hoverColor = tempHoverColor;
     fillColor = defaultColor;
 
-    prevRand = 0;
+    prevRand = 2; //The bouncer starts out "coming" from the top.
   }
 
   void update() {
@@ -39,7 +39,7 @@ class Bouncer {
     handleMouse();
   }
 
-  /*CHANGED: the Bouncer now teleports as soon as it disappears from the screen to an
+  /*CHANGED: the Bouncer now teleports as soon as it disappears from the screen to a
    random location. */
   void handleBounce() {
     if (x + size/2 < 0 || x - size/2 > width || y + size/2 < 0 || y - size/2 > height) { 
@@ -113,6 +113,25 @@ class Bouncer {
     } else { //If the mouse isn't, keep the default color as the color used.
       fillColor = defaultColor;
     }
+  }
+  
+  //CHANGED: New mouse clicked method; changes which way the bouncer is moving.
+  void handleMouseClick(){
+    if (dist(mouseX, mouseY, x, y) < size/2) { 
+      int rand = 0;
+    
+      rand = (int) random(1, 3); // Variable to choose what to do when clicked
+      
+      switch(rand){
+        case 1: //Option 1: Change horizontal movement.
+          
+          vx = -vx;
+          break;
+        case 2: //Option 2: Change vertical movement.
+          vy = -vy;
+          break;
+      }
+    } 
   }
 
   void draw() { //Draw th ellipse without stroke and with the fillColor determined in handleMouse() 
