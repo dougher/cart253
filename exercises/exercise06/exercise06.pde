@@ -26,7 +26,8 @@ void setup() {
   // array adding new objects to it (Bouncers in this case)
   for (int i = 0; i < bouncers.length; i++) {
     // Each Bouncer just starts with random values 
-    bouncers[i] = new Bouncer(random(0,width),random(0,height),random(-10,10),random(-10,10),random(20,50),color(random(255)));
+    //CHANGED: Now the color is also randomized to be somewhat colorful.
+    bouncers[i] = new Bouncer(random(0,width),random(0,height),random(-10,10),random(-10,10),random(20,50), color(random(20, 240), random(20, 420), random(20, 420)));
   }
   
   // Start up the webcam
@@ -55,10 +56,12 @@ void draw() {
    bouncers[i].update();
    bouncers[i].display();
    
+   //Check if the Point is colliding with one of the bouncers.
    Bright.handleCollision(bouncers[i]);
   }
   
-  // CHANGED: We call the Bright update to draw it on the screen.
+  // CHANGED: We call the Point update to draw it on the screen.
+  Bright.display();
 }
 
 // handleVideoInput
