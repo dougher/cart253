@@ -8,13 +8,12 @@ import processing.video.*;
 // The capture object for reading from the webcam
 Capture video;
 
-// A PVector allows us to store an x and y location in a single object
-// When we create it we give it the starting x and y (which I'm setting to -1, -1
-// as a default value)
-PVector brightestPixel = new PVector(-1,-1);
-
 // An array of bouncers to play with
 Bouncer[] bouncers = new Bouncer[10];
+//CHANGED: The brightestPixel is now its own class so
+//we can easily make manipulations to it such as colision
+//detection and gradual color change.
+Point Bright = new Point(20);
 
 // setup()
 //
@@ -55,13 +54,11 @@ void draw() {
   for (int i = 0; i < bouncers.length; i++) {
    bouncers[i].update();
    bouncers[i].display();
+   
+   Bright.handleCollision(bouncers[i]);
   }
   
-  // For now we just draw a crappy ellipse at the brightest pixel
-  fill(#ff0000);
-  stroke(#ffff00);
-  strokeWeight(10);
-  ellipse(brightestPixel.x,brightestPixel.y,20,20);
+  // CHANGED: We call the Bright update to draw it on the screen.
 }
 
 // handleVideoInput
@@ -92,16 +89,16 @@ void handleVideoInput() {
       // Get the color of the pixel we're looking at
       color pixelColor = video.pixels[loc];
       // Get the brightness of the pixel we're looking at
-      float pixelBrightness = brightness(pixelColor);
+      float pixelPointness = brightness(pixelColor);
       // Check if this pixel is the brighest we've seen so far
-      if (pixelBrightness > brightnessRecord) {
+      if (pixelPointness > brightnessRecord) {
         // If it is, change the record value
-        brightnessRecord = pixelBrightness;
+        brightnessRecord = pixelPointness;
         // Remember where this pixel is in the the grid of pixels
         // (and therefore on the screen) by setting the PVector
         // brightestPixel's x and y properties.
-        brightestPixel.x = x;
-        brightestPixel.y = y;
+        Bright.position.x = x;
+        Bright.position.y = y;
       }
     }
   }

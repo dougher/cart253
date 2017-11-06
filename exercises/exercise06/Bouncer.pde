@@ -1,8 +1,3 @@
-// Bouncer
-//
-// A class that defines a circle that can bounce around on the screen
-// at a specific velocity.
-
 class Bouncer {
 
   // Variables for position
