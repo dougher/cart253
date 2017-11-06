@@ -1,9 +1,10 @@
 int DISTANCE = 90;
+int DIAM = 30;
 
 class Ball {
   Clock myClock;
+  Physics myBody;
   
-  int diam;
   color c;
 
   float x;
@@ -15,39 +16,29 @@ class Ball {
 
   float VX;
   float VY;
-  float easing;
 
   boolean active;
   boolean safe;
-  boolean moving;
   float hunger;
 
   int ticks;
   int action;
 
   Ball(int w, int h) {
-    myClock = new IntClock(Factor.Normal);
+    myClock = new Clock(Factor.Normal);
+    myBody = new Physics(w/2, h/2, DIAM, DIAM);
     
-    diam = 30;
     c = color(255, 255, 255);
 
-    x = w/2;
-    y = h/2;
     distX = 100;
     distY = 100;
-    newX = x;
-    newY = y;
-
-    VX = 0;
-    VY = 0;
-    easing = 0.1;
+    newX = myBody.x;
+    newY = myBody.y;
 
     active = false;
     safe = true;
-    moving = false;
     hunger = 10;
 
-    ticks = 0;
     action = 0;
   }
 
@@ -56,11 +47,16 @@ class Ball {
     if (safe) { 
       if (active) //Only becomes true after a full cycle. At init = false.
         Instinct();
-      else if (!active && moving) //"I've just been deactivated."
-        Brake();
+      else if (!active && myBody.moving){ //"I've just been deactivated."
+        if (myBody.Brake()){
+          myClock.Reset();
+          println("Internal clock restarted. Ticks: " + myClock.ticks);
+        }
+      }
       else{ //Should be first condition met on initialization.
         if (myClock.Cycle()){ //Calls boolean function that returns false as long as a cycle hasn't passed.
           active = true;
+          println("Cycle completed.");
           if (hunger <= 4)
             action = 2;
           else
@@ -69,14 +65,14 @@ class Ball {
       }
     } else
       Flight();
-
-    if (abs(mouseX- x) < DISTANCE && abs(mouseY - y) < DISTANCE) { 
+      
+    if (abs(mouseX- myBody.x) < DISTANCE && abs(mouseY - myBody.y) < DISTANCE) { 
       safe = false;
     }
-    println("active: " + active);
-    println("safe: " + safe);
+    //println("active: " + active);
+    //println("safe: " + safe);
 
-    Regulate();
+    myBody.Regulate();
     Display();
   }
 
@@ -93,107 +89,52 @@ class Ball {
       break;
     }
 
-    if (abs(mouseX- x) < DISTANCE && abs(mouseY - y) < DISTANCE) { 
+    if (abs(mouseX- myBody.x) < DISTANCE && abs(mouseY - y) < DISTANCE) { 
       safe = false;
     }
   }
 
-  void Stroll() {
-    if (!moving) {
-      newX = random(x-DISTANCE, x+DISTANCE);
-      newY = random(x-DISTANCE, y+DISTANCE);
-
-      moving = true;
+  void Stroll() {  
+    if (!myBody.getMoving()) {
+      newX = random(myBody.x-DISTANCE, myBody.x+DISTANCE);
+      newY = random(myBody.x-DISTANCE, myBody.y+DISTANCE);
     }
 
     if (safe) {
-      distX = abs(newX - x);
-      distY = abs(newY - y);
-      println(newX + "(newX) - " + x + " (x) = " + distX);
-      println(newY + "(newY) - " + y + " (y) = " + distY);
+      distX = abs(newX - myBody.x);
+      distY = abs(newY - myBody.y);
+      
+      println(newX + "(newX) - " + myBody.x + " (x) = " + distX);
+      println(newY + "(newY) - " + myBody.y + " (y) = " + distY);
 
-      VX = distX * easing;
-      VY = distY * easing;
-      println(VX + " < VX | VY > " + VY);
+      //println(myBody.vx + " < VX | VY > " + myBody.vy);
 
-      if (abs(VX) < easing || abs(VY) < easing)
-        active = false;
-
-      if (newX - x > 0) 
-        VX = -VX;
-
-      if (newY - y > 0) 
-        VY = -VY;
-
-      Move();
+        if (!myBody.InMotion())
+          active = false;
+        
+        myBody.ReverseV(true, newX);
+        myBody.ReverseV(false, newY);
+        
+        myBody.IntentMove(distX, distY, false);
     }
   }
 
   void Flight () {
-    distX = abs(mouseX - x);
-    distY = abs(mouseY - y);
+    distX = abs(mouseX - myBody.x);
+    distY = abs(mouseY - myBody.y);
+    
+    myBody.IntentMove(distX, distY, true);
 
-    println("Que hora es?!");
-
-    VX = (DISTANCE - distX) * easing;
-    VY = (DISTANCE - distY) * easing;
-
-    if (mouseX - x < 0) 
-      VX = -VX;
-
-    if (mouseY - y < 0) 
-      VY = -VY;
-
-    Move();
+    println("Flight!");
 
     if (abs(distX) >= DISTANCE || abs(distY) >= DISTANCE) {
       safe = true;
       active = false;
-      ticks = 0;
     }
-  }
-
-  void Move() {
-    moving = true;
-    x -= VX;
-    y -= VY;
-  }
-
-  void Brake() {
-    x = x - VX;
-    y = y - VY;
-
-    if (VX > 0)
-      VX -= easing;
-    else
-      VX += easing;
-
-    if (VY > 0)
-      VY -= easing;
-    else
-      VY += easing;
-
-    //println("Bananas!");
-    if (abs(VX) < easing || abs(VY) < easing) {
-      moving = false;
-      VX = 0;
-      VY = 0;
-
-      myClock.Reset();
-      println("Uncle dolan pls.");
-    }
-  }
-
-  void Regulate() {
-    x = constrain(x, (diam/2), width - (diam/2));
-    y = constrain(y, (diam/2), height - (diam/2));
-
-    if (ticks > CLOCK)
-      ticks = CLOCK;
   }
 
   void Display() {
     fill(c);
-    ellipse(x, y, diam, diam);
+    ellipse(myBody.x, myBody.y, myBody.w, myBody.h);
   }
 }
