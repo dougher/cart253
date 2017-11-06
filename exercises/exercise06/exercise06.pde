@@ -57,7 +57,7 @@ void draw() {
    bouncers[i].display();
    
    //Check if the Point is colliding with one of the bouncers.
-   Bright.handleCollision(bouncers[i]);
+   Bright.update(bouncers[i]);
   }
   
   // CHANGED: We call the Point update to draw it on the screen.
