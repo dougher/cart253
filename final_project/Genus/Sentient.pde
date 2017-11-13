@@ -4,47 +4,86 @@ final int SAFE = 101;
 class Sentient extends Vehicle{
   Vehicle body;
   BaseEntity target;
+  Vector2D nextPos = new Vector2D(0, 0);
+  Clock myClock = new Clock(Factor.Normal);
+  
+  boolean active = false;
   boolean safe = true;
   boolean moving = false;
+  
+  int action = 0;
+  int hunger = 10;
   
   color c = color(255, 255, 255);
 
   
-  Sentient(double _x, double _y, double _vx, double _vy, double initSize, double initMaxSpeed){
+  Sentient(double _x, double _y, double initSize, double maxVel){
     super(
       new Vector2D(_x, _y), //Position on screen. 
       initSize, 
-      new Vector2D(_vx, _vy), //Velocity.
-      initMaxSpeed, 
+      new Vector2D(0, 0), //Velocity.
+      maxVel, 
       new Vector2D(0, 0), //Heading or initial direction of the AI.
       _x * _y, 
-      initMaxSpeed/(_x*_y), //To be verified later, the AI's ability to turn should reflect its mass, e.g. 
+      maxVel/(_x*_y), //To be verified later, the AI's ability to turn should reflect its mass, e.g. 
       //the bigger it is the slower it will turn.
-      initMaxSpeed * 0.5 //Not quite sure what to pu here yet, placeholder value.
+      maxVel * 0.5 //Not quite sure what to pu here yet, placeholder value.
     );
     addFSM();
 }
-  
-  void AI(){
 
-    double dist = dist((float) this.pos.x, (float) this.pos.y, mouseX, mouseY);
-    
-    if (dist < DISTANCE){
-       Dispatcher.dispatch(500, this.ID(), this.ID(), UNSAFE); 
+  void AI(){
+    if (active){
+      
+    } else{
+       if (myClock.Cycle()){
+         active = true;
+         
+         if (hunger <= 4)
+            action = 2;
+          else
+            action = 1;
+       }
     }
   }
   
   void Instinct(){
+
+    double dist = dist((float) this.pos.x, (float) this.pos.y, mouseX, mouseY);
     
+    if (dist < DISTANCE){
+
+       Dispatcher.dispatch(500, this.ID(), this.ID(), UNSAFE); 
+    } else {
+      action = (int) random(0, 3);
+    }
   }
+  
+  void CalculateTarget(){
+    switch (action){
+      case 1:
+        nextPos.set( (double) random((float) (this.pos.x-DISTANCE), (float) (this.pos.x+DISTANCE)), 
+                     (double) random((float) (this.pos.y-DISTANCE), (float) (this.pos.y+DISTANCE))
+          );
+          
+        println(nextPos.x + " " + nextPos.y);
+        break;
+    }
+  }
+  
+  
+  void Start(){
+    if (this.velocity.x <= 15)
+      this.velocity.add(0.1, 0.5);
+  }
+ 
   
   void Flight(){
     
   }
   
   void Regulate(){
-    this.pos.x = constrain((int)this.pos.x, 0, width);
-    this.pos.y = constrain((int)this.pos.y, 0, height);
+    
   }
 }
 

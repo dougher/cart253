@@ -42,8 +42,6 @@ void createPet() {
   Pet = new Sentient(
     width/2, 
     height/2, 
-    VELOCITY, 
-    VELOCITY, 
     30, 
     30
    );

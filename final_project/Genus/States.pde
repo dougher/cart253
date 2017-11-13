@@ -1,13 +1,26 @@
 //All the states of th Sentient object are implemented here.
-//The globalState is always responsive and checks the Sentient's need for safety,
-//To ensure that need trumps all other ones (so far).
+//The globalState is always responsive and makes sure the Pet is in the right
+//state depending on its attributes (is it hungry, is it safe, is it moving, etc.)
 public class GlobalState extends State {
   public void enter (BaseEntity user){
     
   }
   
   public void execute(BaseEntity user, double deltaTime, World world){
-
+    Sentient p = (Sentient)user;
+    switch(p.action) {
+    case 0:
+      break;
+    case 1:
+      p.FSM().changeState(wanderState);
+      break;
+    case 2:
+      //Eat();
+      break;
+    case 3: 
+      //Sleep();
+      break;
+    }
   }
   
   public void exit(BaseEntity user) {
@@ -19,28 +32,26 @@ public class GlobalState extends State {
     
     switch (tgram.msg){
       case UNSAFE:
+        p.safe = false;
         p.FSM().changeState(flightState);
-        return true;
-      case SAFE:
-        p.FSM().changeState(idleState);
         return true;
     }
     return false; 
   }
 }
 //The IdleState is the main state in which the Sentient is, in which it
-//decides its further choices (do I feed myself, do I sleep, do I wander...)
+//decides its further choices (do I feed myself, do I sleep, do I wander...).
 public class IdleState extends State {
   public void enter (BaseEntity user){
     Sentient p = (Sentient)user;
     p.AP().allOff();
+    p.active = false;
   }
   
   public void execute(BaseEntity user, double deltaTime, World world){
     Sentient p = (Sentient)user;
+    
     p.AI();
-    
-    
   }
   
   public void exit(BaseEntity user) {
@@ -55,16 +66,21 @@ public class IdleState extends State {
 public class WanderState extends State {
   public void enter (BaseEntity user){
     Sentient p = (Sentient)user;
-    p.AP().wanderOn();
+    
+    p.CalculateTarget();
+   
+    //println("C'est chaud!");
   }
   
   public void execute(BaseEntity user, double deltaTime, World world){
     Sentient p = (Sentient)user;
+    p.AP().wanderOn().wanderFactors(60, 30, 20);
+    //p.AP().seekOn(p.nextPos);
   }
   
   public void exit(BaseEntity user) {
     Sentient p = (Sentient)user;
-    p.AP().wanderOff();
+    p.AP().seekOff();
   }
   
   public boolean onMessage(BaseEntity user, Telegram tgram) {
