@@ -13,6 +13,7 @@ class Sentient extends Vehicle{
   
   int action = 0;
   int hunger = 10;
+  int walking = 0; //Number of walking cycles.
   
   color c = color(255, 255, 255);
 
@@ -23,21 +24,25 @@ class Sentient extends Vehicle{
       initSize, 
       new Vector2D(0, 0), //Velocity.
       maxVel, 
-      new Vector2D(0, 0), //Heading or initial direction of the AI.
-      _x * _y, 
-      maxVel/(_x*_y), //To be verified later, the AI's ability to turn should reflect its mass, e.g. 
+      new Vector2D(1, 1), //Heading or initial direction of the AI.
+      1, 
+      0.5, //To be verified later, the AI's ability to turn should reflect its mass, e.g. 
       //the bigger it is the slower it will turn.
-      maxVel * 0.5 //Not quite sure what to pu here yet, placeholder value.
+      2000 //Not quite sure what to put here yet, placeholder value.
     );
     addFSM();
 }
 
   void AI(){
     if (active){
-      
+      Instinct();
+    }  else if (!active && moving){ //If I was recently deactivated but am still moving...
+      Break();
+      println("Breaking");
     } else{
        if (myClock.Cycle()){
          active = true;
+         println("Processing cycle completed.");
          
          if (hunger <= 4)
             action = 2;
@@ -48,42 +53,56 @@ class Sentient extends Vehicle{
   }
   
   void Instinct(){
-
-    double dist = dist((float) this.pos.x, (float) this.pos.y, mouseX, mouseY);
+    double dist = abs(dist((float) this.pos.x, (float) this.pos.y, mouseX, mouseY));
     
     if (dist < DISTANCE){
-
        Dispatcher.dispatch(500, this.ID(), this.ID(), UNSAFE); 
     } else {
-      action = (int) random(0, 3);
+      
     }
   }
-  
-  void CalculateTarget(){
-    switch (action){
-      case 1:
-        nextPos.set( (double) random((float) (this.pos.x-DISTANCE), (float) (this.pos.x+DISTANCE)), 
-                     (double) random((float) (this.pos.y-DISTANCE), (float) (this.pos.y+DISTANCE))
-          );
-          
-        println(nextPos.x + " " + nextPos.y);
-        break;
-    }
+
+  void TakeOff(){
+    if (this.velocity.x <= VELOCITY)
+      this.velocity.add(EASING);
+      
+      moving = true;
   }
   
-  
-  void Start(){
-    if (this.velocity.x <= 15)
-      this.velocity.add(0.1, 0.5);
+  void Break(){
+    //The Break method ensures that the pet is slowly stopped before going back
+    //to checking with its needs. (Idle state)
+    //It conditionally changes, depending on polarity, the x and why by using 
+    //constants internal to Vector2D to ensure maximal compatibility.
+    if (this.velocity.x > 0)
+      this.velocity.sub(Vector2D.div(Vector2D.PLUS_I, 3)); 
+    else
+      this.velocity.sub(Vector2D.div(Vector2D.MINUS_I, 3));
+      
+    if (this.velocity.y > 0)  
+      this.velocity.sub(Vector2D.div(Vector2D.PLUS_J, 3));
+    else
+      this.velocity.sub(Vector2D.div(Vector2D.MINUS_J, 3));
+      
+    //println(this.velocity);
+    
+    boolean xCloseToZero = this.velocity.x <= 0.4 && this.velocity.x >= -0.4;
+    boolean yCloseToZero = this.velocity.y <= 0.4 && this.velocity.y >= -0.4;
+      
+    if (xCloseToZero && yCloseToZero){
+      this.velocity.set(Vector2D.ZERO);
+      moving = false;
+      AP().wanderOff();
+      println("Yipee kay yay motherfucker");
+    }
   }
  
-  
-  void Flight(){
+  void Regulate(){
     
   }
   
-  void Regulate(){
-    
+  Vector2D GetPos(){
+    return pos; 
   }
 }
 

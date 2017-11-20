@@ -39,6 +39,34 @@ class Clock{
       return false;
   }
   
+  boolean Cycle(int nbOfCycles){
+    switch (nbOfCycles){
+      case 1:
+        customClock = CLOCK * 5;
+        break;
+      case 2:
+        customClock = CLOCK * 2;
+        break;
+      case 3:
+        customClock = CLOCK;
+        break;
+      case 4:
+        customClock = floor(CLOCK / 1.5);
+        break;
+      case 5:
+        customClock = CLOCK / 2;
+        break;
+    }
+    //println("Walk cycle: "  + nbOfCycles);
+    
+    Turn();
+    
+    if (ticks >= customClock)
+      return true;
+    else
+      return false;
+  }
+  
   void Turn(){
     ticks++;
     if (ticks >= customClock)

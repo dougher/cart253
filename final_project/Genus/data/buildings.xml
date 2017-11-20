@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- buildings.xml -->
+<buildings>
+
+	<building name="A">
+		<pos x="0" y = "0" />
+		<contour>
+			<point x = "0"   y = "112" />
+			<point x = "0"   y = "912" />
+			<point x = "84" y = "912" />
+			<point x = "84" y = "112" />
+		</contour>
+	</building>
+
+	<building name="B">
+		<pos x="0" y = "0" />
+		<contour>
+			<point x = "0"   y = "0" />
+			<point x = "0"   y = "112" />
+			<point x = "768" y = "112" />
+			<point x = "768" y = "0" />
+		</contour>
+	</building>
+
+	<building name="C">
+		<pos x="0" y = "0" />
+		<contour>
+			<point x = "684" y = "112" />
+			<point x = "684" y = "912" />
+			<point x = "768" y = "912" />
+			<point x = "768" y = "112" />
+		</contour>
+	</building>
+
+	<building name="D">
+		<pos x="0" y = "0" />
+		<contour>
+			<point x = "0" y = "912" />
+			<point x = "0" y = "1024" />
+			<point x = "768" y = "1024" />
+			<point x = "768" y = "912" />
+		</contour>
+	</building>
+	
+</buildings>
