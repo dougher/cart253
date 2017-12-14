@@ -30,8 +30,12 @@ class Clock{
     }
   }
   
+  //This is the default Cycle method, which uses its owner's original customClock
+  //to decide how long a Cycle lasts.
   boolean Cycle(){
     Turn();
+    
+    //println(ticks);
     
     if (ticks >= customClock)
       return true;
@@ -39,6 +43,8 @@ class Clock{
       return false;
   }
   
+  //This is an overloaded version of the Cycle method to take into account a different
+  //customClock than the original one.
   boolean Cycle(int nbOfCycles){
     switch (nbOfCycles){
       case 1:
@@ -65,6 +71,28 @@ class Clock{
       return true;
     else
       return false;
+  }
+  
+  //This method is used to reset a Cycle if it was modified (e.g. when the Pet
+  //changes its Cycle to fit with how long its been randomly set to walk for.
+  void SetCycle(Factor myFactor){
+    switch (myFactor){
+      case Slower:
+        customClock = CLOCK * 5;
+        break;
+      case Slow:
+        customClock = CLOCK * 2;
+        break;
+      case Normal:
+        customClock = CLOCK;
+        break;
+      case Fast:
+        customClock = CLOCK / 2;
+        break;
+      case Faster:
+        customClock = CLOCK / 5;
+        break;
+    }
   }
   
   void Turn(){

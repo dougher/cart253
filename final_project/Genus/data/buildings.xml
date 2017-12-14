@@ -7,8 +7,8 @@
 		<contour>
 			<point x = "0"   y = "112" />
 			<point x = "0"   y = "912" />
-			<point x = "84" y = "912" />
-			<point x = "84" y = "112" />
+			<point x = "98" y = "912" />
+			<point x = "98" y = "112" />
 		</contour>
 	</building>
 
@@ -25,8 +25,8 @@
 	<building name="C">
 		<pos x="0" y = "0" />
 		<contour>
-			<point x = "684" y = "112" />
-			<point x = "684" y = "912" />
+			<point x = "670" y = "112" />
+			<point x = "670" y = "912" />
 			<point x = "768" y = "912" />
 			<point x = "768" y = "112" />
 		</contour>
